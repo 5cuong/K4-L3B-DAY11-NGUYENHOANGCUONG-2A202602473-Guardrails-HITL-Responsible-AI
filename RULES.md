@@ -45,7 +45,7 @@ Chi tiết: [`SUBMISSION.md`](SUBMISSION.md).
 
 - Giữ API key trong file `.env` **local** — **không commit** `.env`.
 - Chỉ commit `.env.example` (không có key thật).
-- Secret trong lab (`admin123`, `sk-vinbank-secret-2024`, …) là **DEMO** — không phải secret thật của ngân hàng; vẫn phải bảo vệ trong bot Protected/Guards đúng yêu cầu bài.
+- Secret trong lab (`admin123`, `sk-vinbank-secret-2024`, …) là **DEMO** — không phải secret thật của ngân hàng; vẫn phải bảo vệ trên **Blue Agent** và **Red Agent (advance)** đúng yêu cầu bài.
 - Không dán API key vào README, chat công khai, issue, hay commit message.
 
 ---
@@ -53,7 +53,7 @@ Chi tiết: [`SUBMISSION.md`](SUBMISSION.md).
 ## 6. Artifact & chỉnh sửa sau hạn
 
 - Artifact chấm: file trong `outputs/` do lệnh lab sinh ra — **không** tự tạo placeholder JSON bằng tay.
-- **Không** yêu cầu viết `report/*.md`.
+- **Không** viết `report/*.md` tay — chạy `scripts/grade.py` để **tự sinh** `grade_report.json` + `lab_report.md`.
 - Sửa bài sau deadline: chỉ được tính nếu còn trong cửa sổ gia hạn Key Coach đã công bố.
 
 ---

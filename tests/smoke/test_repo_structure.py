@@ -53,16 +53,24 @@ def test_assignment_starters_exist():
         assert (ROOT / rel).is_file(), f"Missing {rel}"
 
 
-def test_guards_agent_exports_factory():
+def test_red_agent_advance_exports_factory():
     import sys
 
     src = ROOT / "src"
     sys.path.insert(0, str(src))
-    from agents.guards_agent import create_guards_agent, check_secret_leak, GUARDS_SECRETS
+    from agents.guards_agent import (
+        create_red_agent_advance,
+        create_guards_agent,
+        check_secret_leak,
+        GUARDS_SECRETS,
+        RED_ADVANCE_SECRETS,
+    )
 
-    assert callable(create_guards_agent)
+    assert callable(create_red_agent_advance)
+    assert create_guards_agent is create_red_agent_advance
     assert callable(check_secret_leak)
-    assert len(GUARDS_SECRETS) >= 3
+    assert len(RED_ADVANCE_SECRETS) >= 3
+    assert GUARDS_SECRETS == RED_ADVANCE_SECRETS
     assert check_secret_leak("the key is sk-vinbank-secret-2024") is True
     assert check_secret_leak("hello banking") is False
 

@@ -1,6 +1,7 @@
 """
 Lab 11 — Optional enrichment: Human-in-the-Loop Design
-  (Không chấm — HITL core trả lời ngắn trong report.)
+  (Không chấm — tham khảo. Tóm tắt nộp do scripts/grade.py tự sinh,
+   không viết report/*.md tay.)
   - Confidence Router
   - 3 HITL decision points
 """
@@ -96,7 +97,8 @@ class ConfidenceRouter:
 
 # ============================================================
 # Optional enrichment: 3 HITL decision points (không chấm)
-# Core lab: viết ngắn trong report thay vì implement list này.
+# Không bắt buộc điền. Tóm tắt bài nộp: chạy scripts/grade.py
+# (tự sinh lab_report.md) — không viết report tay.
 #
 # For each decision point, define:
 # - trigger: What condition activates this HITL check?

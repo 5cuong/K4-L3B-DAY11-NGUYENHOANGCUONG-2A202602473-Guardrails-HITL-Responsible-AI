@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 
 from core.utils import chat_with_agent
 from attacks.attacks import adversarial_prompts, run_attacks
-from agents.agent import create_unsafe_agent, create_protected_agent
+from agents.agent import create_red_agent_default, create_blue_agent
 from guardrails.input_guardrails import InputGuardrailPlugin
 from guardrails.output_guardrails import OutputGuardrailPlugin, _init_judge
 
@@ -18,35 +18,35 @@ from guardrails.output_guardrails import OutputGuardrailPlugin, _init_judge
 # Optional: Rerun attacks with guardrails
 #
 # Run the same 5 adversarial prompts (Checkpoint 4) against
-# the protected agent (with InputGuardrailPlugin + OutputGuardrailPlugin).
-# Compare results with the unprotected agent.
+# the Blue Agent (create_blue_agent + Input/Output plugins).
+# Compare with Red Agent (default) / unprotected.
 #
 # Steps:
 # 1. Create input and output guardrail plugins
-# 2. Create the protected agent with both plugins
+# 2. Create the Blue Agent with both plugins
 # 3. Run the same attacks from adversarial_prompts
-# 4. Build a comparison table (before vs after)
+# 4. Build a comparison table (Red Agent default vs Blue Agent)
 # ============================================================
 
 async def run_comparison():
-    """Run attacks against both unprotected and protected agents.
+    """Run attacks against Red Agent (default) and Blue Agent.
 
     Returns:
-        Tuple of (unprotected_results, protected_results)
+        Tuple of (red_default_results, blue_agent_results)
     """
-    # --- Unprotected agent ---
+    # --- Red Agent (default) ---
     print("=" * 60)
-    print("PHASE 1: Unprotected Agent")
+    print("PHASE 1: Red Agent (default)")
     print("=" * 60)
-    unsafe_agent, unsafe_runner = create_unsafe_agent()
+    unsafe_agent, unsafe_runner = create_red_agent_default()
     unprotected_results = await run_attacks(unsafe_agent, unsafe_runner)
 
-    # --- Protected agent ---
-    # Optional: Create the protected agent with guardrail plugins
+    # --- Blue Agent ---
+    # Optional: Create Blue Agent with guardrail plugins
     # Hint:
     # input_plugin = InputGuardrailPlugin()
     # output_plugin = OutputGuardrailPlugin(use_llm_judge=False)
-    # protected_agent, protected_runner = create_protected_agent(
+    # protected_agent, protected_runner = create_blue_agent(
     #     plugins=[input_plugin, output_plugin]
     # )
     # protected_results = await run_attacks(protected_agent, protected_runner)
@@ -57,11 +57,11 @@ async def run_comparison():
 
 
 def print_comparison(unprotected, protected):
-    """Print a comparison table of before/after results."""
+    """Print Red Agent (default) vs Blue Agent comparison table."""
     print("\n" + "=" * 80)
-    print("COMPARISON: Unprotected vs Protected")
+    print("COMPARISON: Red Agent (default) vs Blue Agent")
     print("=" * 80)
-    print(f"{'#':<4} {'Category':<35} {'Unprotected':<20} {'Protected':<20}")
+    print(f"{'#':<4} {'Category':<35} {'Red default':<20} {'Blue Agent':<20}")
     print("-" * 80)
 
     for i, (u, p) in enumerate(zip(unprotected, protected), 1):
@@ -253,7 +253,7 @@ class SecurityTestPipeline:
 
 async def test_pipeline():
     """Run the full security testing pipeline."""
-    unsafe_agent, unsafe_runner = create_unsafe_agent()
+    unsafe_agent, unsafe_runner = create_red_agent_default()
     pipeline = SecurityTestPipeline(unsafe_agent, unsafe_runner)
     results = await pipeline.run_all()
     pipeline.print_report(results)

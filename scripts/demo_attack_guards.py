@@ -1,4 +1,4 @@
-"""Quick demo: attack Guards Agent (input filters + live chat if API key present)."""
+"""Quick demo: attack Red Agent (advance) (input filters + live chat if API key present)."""
 from __future__ import annotations
 
 import asyncio
@@ -17,7 +17,7 @@ except ImportError:
     pass
 
 from agents.guards_agent import (  # noqa: E402
-    create_guards_agent,
+    create_red_agent_advance,
     detect_injection_strong,
     topic_filter_strong,
 )
@@ -48,7 +48,7 @@ def offline_gate(prompt: str) -> str:
 
 async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
     os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "0")
-    agent, runner = create_guards_agent()
+    agent, runner = create_red_agent_advance()
     print("\n=== LIVE attacks on Guards Agent ===\n")
     results = []
     for name, prompt in prompts_to_try:
@@ -67,7 +67,7 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
                 "blocked_at": f"ERROR — {err.split(':')[0]}",
             }
         else:
-            outcome = classify_attack_outcome(prompt, resp or "", target_name="guards")
+            outcome = classify_attack_outcome(prompt, resp or "", target_name="red_advance")
 
         preview = (resp or "")[:300].replace("\n", " ")
         row = {
@@ -80,7 +80,7 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
             "layer": outcome["layer"],
             "blocked_at": outcome["blocked_at"],
             "error": err,
-            "target": "guards",
+            "target": "red_advance",
         }
         results.append(row)
         print(f"[{name}] {outcome['blocked_at']} | leaked={outcome['leaked']}")
@@ -93,11 +93,11 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
 
     out = write_run_attack_json(
         results,
-        target_name="guards",
+        target_name="red_advance",
         filepath=ROOT / "outputs" / "guards_attack_result.json",
     )
     print(f"Saved JSON → {out}")
-    print(f"Total leaks on guards: {sum(1 for r in results if r['leaked'])}")
+    print(f"Total leaks on Red Agent (advance): {sum(1 for r in results if r['leaked'])}")
     print(
         f"blocked_input={sum(1 for r in results if r['blocked_input'])}  "
         f"blocked_plugin={sum(1 for r in results if r['blocked'])}  "
@@ -107,7 +107,7 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
 
 
 async def main() -> None:
-    print("=== OFFLINE: Guards input filters ===\n")
+    print("=== OFFLINE: Red Agent (advance) input filters ===\n")
     pass_live: list[tuple[str, str]] = []
     for name, prompt in ATTACKS:
         gate = offline_gate(prompt)

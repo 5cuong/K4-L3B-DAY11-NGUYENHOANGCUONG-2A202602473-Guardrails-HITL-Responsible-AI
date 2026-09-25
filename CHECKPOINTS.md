@@ -4,6 +4,16 @@
 > 👤 **Cá nhân** · Làm **đúng thứ tự** Checkpoint 1 → 5.  
 > 📂 **Không tự tạo file JSON trong** `outputs/` **bằng tay.** Folder và file kết quả được **sinh khi bạn chạy lệnh**.
 
+### Ba agent (nhớ bảng này)
+
+| Tên gọi | Code | Vai trò |
+|---------|------|---------|
+| **Blue Agent** | `create_blue_agent(plugins)` + code CP2–3 | Bạn **code** phòng thủ → `results.json` |
+| **Red Agent (default)** | `create_red_agent_default()` | Có sẵn, mềm — CP4 **phải leak** |
+| **Red Agent (advance)** | `create_red_agent_advance()` | Có sẵn, cứng — CP4 leak = bonus B2 |
+
+> CP4 **không** tấn công Blue Agent. File JSON vẫn dùng khóa kỹ thuật `unsafe_*` / `guards_*` (= default / advance).
+
 ---
 
 ## 0. Bản đồ thư mục kết quả (đọc trước khi làm)
@@ -12,42 +22,44 @@
 
 ```text
 Day-11-.../
-├── outputs/
-│   └── .gitkeep          ← chỉ có file trống để giữ folder trên Git
+├── outputs/              ← trống (hoặc chưa có) — chưa có JSON
 └── src/                  ← chỗ bạn viết code
 ```
 
-Bạn **không** cần `mkdir outputs` — folder đã có sẵn.  
-Khi chạy lệnh lab, code sẽ **tự ghi đè / tạo** các file JSON bên trong `outputs/`.  
-**Không cần** viết `report/*.md` — chỉ cần đủ JSON trong `outputs/`.
+`outputs/` **không** nằm trong `.gitignore` — khi nộp bạn **commit các file JSON** do lệnh lab sinh ra.  
+Khi chạy lệnh, code sẽ **tự tạo folder** (nếu cần) và ghi file JSON vào `outputs/`.  
+**Không viết report tay.** Checkpoint 5 chạy `scripts/grade.py` sẽ **tự sinh** `outputs/grade_report.json` + `outputs/lab_report.md`.
 
 ### Sau khi làm xong toàn bộ lab, `outputs/` phải có
 
 ```text
 outputs/
-├── .gitkeep
-│
-│  # --- Sinh ở Checkpoint 3 (python main.py --part 5) ---
+│  # --- Sinh ở Checkpoint 3 (python main.py --part 3) ---
 ├── results.json              ← BẮT BUỘC nộp (kết quả phòng thủ)
 ├── audit_log.json            ← khuyến nghị (nhật ký)
 ├── metrics.json              ← khuyến nghị (metrics + alert)
 │
-│  # --- Sinh ở Checkpoint 4 (python main.py --part 1) ---
+│  # --- Sinh ở Checkpoint 4 (python main.py --part 4) ---
 ├── attack_results.json       ← BẮT BUỘC nộp (tổng hợp tấn công)
-├── unsafe_attack_result.json ← chi tiết tấn công bot unprotected
-└── guards_attack_result.json ← chi tiết tấn công bot có bảo vệ
+├── unsafe_attack_result.json ← chi tiết tấn công **Red Agent (default)**
+├── guards_attack_result.json ← chi tiết tấn công **Red Agent (advance)**
+│
+│  # --- Tự sinh ở Checkpoint 5 (scripts/grade.py) — không viết tay ---
+├── grade_report.json         ← máy đọc (packaging + schema + public tests)
+└── lab_report.md             ← tóm tắt người đọc (auto)
 ```
 
 
 | File                                | Ai tạo?                                        | Khi nào?                      | Bắt buộc nộp?   |
 | ----------------------------------- | ---------------------------------------------- | ----------------------------- | --------------- |
-| `outputs/results.json`              | Code bạn viết ở CP3 (`run_assignment_suite`)   | Sau `python main.py --part 5` | **Có**          |
-| `outputs/audit_log.json`            | Code bạn viết ở CP3 (`audit_log.export_json`)  | Cùng lúc `--part 5`           | Khuyến nghị     |
-| `outputs/metrics.json`              | Code bạn viết ở CP3 (`monitoring.export_json`) | Cùng lúc `--part 5`           | Khuyến nghị     |
-| `outputs/attack_results.json`       | Starter (`save_attack_results`)                | Sau `python main.py --part 1` | **Có**          |
-| `outputs/unsafe_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 1`           | Có (bằng chứng) |
-| `outputs/guards_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 1`           | Có (bằng chứng) |
-| `outputs/grade_report.json`         | `scripts/grade.py` (tự kiểm)                   | Checkpoint 5                  | Không bắt buộc  |
+| `outputs/results.json`              | Code bạn viết ở CP3 (`run_assignment_suite`)   | Sau `python main.py --part 3` | **Có**          |
+| `outputs/audit_log.json`            | Code bạn viết ở CP3 (`audit_log.export_json`)  | Cùng lúc `--part 3`           | Khuyến nghị     |
+| `outputs/metrics.json`              | Code bạn viết ở CP3 (`monitoring.export_json`) | Cùng lúc `--part 3`           | Khuyến nghị     |
+| `outputs/attack_results.json`       | Starter (`save_attack_results`)                | Sau `python main.py --part 4` | **Có**          |
+| `outputs/unsafe_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 4`           | Có (bằng chứng) |
+| `outputs/guards_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 4`           | Có (bằng chứng) |
+| `outputs/grade_report.json`         | `scripts/grade.py` (**tự sinh**)               | Checkpoint 5                  | Không bắt buộc  |
+| `outputs/lab_report.md`             | `scripts/grade.py` (**tự sinh**, không viết tay) | Checkpoint 5                | Không bắt buộc  |
 
 
 > Mọi đường dẫn ở dưới tính từ **thư mục gốc repo** (nơi có `README.md`, `CHECKPOINTS.md`).
@@ -63,6 +75,9 @@ CP1 Setup → CP2 Viết bộ lọc → CP3 Ghép pipeline + sinh results.json
          → CP4 Tấn công + sinh attack JSON → CP5 Tự kiểm + nộp link
 ```
 
+> **`--part` = số Checkpoint:** `--part 2` → CP2 · `--part 3` → CP3 · `--part 4` → CP4.  
+> (Optional không chấm: `--part 5` testing · `--part 6` HITL.)
+
 ---
 
 
@@ -73,7 +88,7 @@ CP1 Setup → CP2 Viết bộ lọc → CP3 Ghép pipeline + sinh results.json
 
 ### Mục tiêu
 
-Máy chạy được Python lab + có key **OpenRouter** (Blue Team) và key **OpenAI hoặc Gemini** (Red Team).
+Máy chạy được Python lab + có key **OpenRouter** (Blue Agent) và key **OpenAI hoặc Gemini** (Red Agent).
 
 ### Việc cần làm (từng bước)
 
@@ -83,13 +98,15 @@ Máy chạy được Python lab + có key **OpenRouter** (Blue Team) và key **O
 2. Clone repo (đã đổi tên) về máy; mở terminal tại **thư mục gốc** repo.
 3. Tạo & kích hoạt virtualenv, cài dependency.
 4. Copy `.env.example` → `.env`:
-  - **Blue Team (cố định):** `OPENROUTER_API_KEY` — model khóa `liquid/lfm-2.5-2.6b`
-  - **Red Team (chọn một):** `RED_TEAM_PROVIDER=openai` + `OPENAI_API_KEY` (`gpt-4o-mini`)  
+  - **Blue Agent (cố định):** `OPENROUTER_API_KEY` — model khóa `liquid/lfm-2.5-2.6b`
+  - **Red Agent (chọn một):** `RED_TEAM_PROVIDER=openai` + `OPENAI_API_KEY` (`gpt-4o-mini`)  
     **hoặc** `RED_TEAM_PROVIDER=gemini` + `GOOGLE_API_KEY` (`gemini-3.5-flash`)
 5. (Tuỳ chọn) `STUDENT_ID=2A2026xxxxx`.
-6. (Tuỳ chọn — khó hơn, điểm cộng B1 trên **Red Team**):
+6. (Tuỳ chọn — khó hơn, điểm cộng B1 khi tấn công **Red Agent (default)**):
   - OpenAI: `OPENAI_MODEL=gpt-5.6-luna`
   - Gemini: `GEMINI_MODEL=gemini-3.8-flash`
+
+**Windows (PowerShell):**
 
 ```powershell
 python -m venv .venv
@@ -101,15 +118,26 @@ python -m pip install -U pip
 pip install -r requirements.txt
 ```
 
+**macOS / Linux (bash):**
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+cp .env.example .env
+# Điền OPENROUTER_API_KEY + (OPENAI_API_KEY hoặc GOOGLE_API_KEY)
+python -m pip install -U pip
+pip install -r requirements.txt
+```
+
 
 
 ### Cần hiểu gì?
 
 - Lab chạy **local**.  
-  **Blue Team** luôn dùng OpenRouter `liquid/lfm-2.5-2.6b`.  
-  **Red Team** chọn `gpt-4o-mini` hoặc `gemini-3.5-flash` (B1: `gpt-5.6-luna` / `gemini-3.8-flash`).
-- Bot **unsafe** cố ý “mềm”; bot **guards** vẫn cứng.
-- Mỗi lần mở terminal mới phải `Activate.ps1` lại.
+  **Blue Agent** luôn dùng OpenRouter `liquid/lfm-2.5-2.6b`.  
+  **Red Agent** chọn `gpt-4o-mini` hoặc `gemini-3.5-flash` (B1: `gpt-5.6-luna` / `gemini-3.8-flash`).
+- **Red Agent (default)** cố ý “mềm”; **Red Agent (advance)** vẫn cứng.
+- Mỗi lần mở terminal mới phải kích hoạt lại venv (`Activate.ps1` trên Windows, `source .venv/bin/activate` trên macOS/Linux).
 
 
 
@@ -120,7 +148,7 @@ pip install -r requirements.txt
 | ---------- | ---------------- | ----------------------------- |
 | Virtualenv | `.venv/`         | Không commit                  |
 | API key    | `.env`           | **Không commit**              |
-| `outputs/` | chưa có JSON mới | Vẫn chỉ `.gitkeep` — **đúng** |
+| `outputs/` | chưa có JSON mới | Trống / chưa có — **đúng** |
 
 
 
@@ -128,9 +156,9 @@ pip install -r requirements.txt
 ### Cách tự kiểm tra
 
 ```powershell
-# Blue Team SDK
+# Blue Agent SDK
 python -c "import openai; print('OpenAI SDK (OpenRouter Blue + OpenAI Red) sẵn sàng')"
-# Nếu Red Team = gemini, kiểm tra thêm:
+# Nếu Red Agent = gemini, kiểm tra thêm:
 # python -c "import google.adk; print('Gemini/ADK sẵn sàng')"
 pytest tests/smoke -q
 ```
@@ -141,7 +169,7 @@ pytest tests/smoke -q
 
 
 
-## 🏁 CHECKPOINT 2 — Bộ lọc input + output (≈ 45')
+## 🏁 CHECKPOINT 2 — Blue Agent / bộ lọc input + output (≈ 45')
 
 
 
@@ -225,7 +253,7 @@ User message
 | ----------------- | ------------------------------------------------------------ |
 | Code đã implement | `src/guardrails/input_guardrails.py`, `output_guardrails.py` |
 | Kết quả kiểm tra  | **In trên terminal** (chưa ghi `outputs/*.json`)             |
-| Folder `outputs/` | Vẫn có thể chỉ còn `.gitkeep` — **bình thường**              |
+| Folder `outputs/` | Vẫn trống / chưa có JSON — **bình thường**                   |
 
 
 
@@ -244,7 +272,7 @@ python main.py --part 2
 
 
 
-## 🏁 CHECKPOINT 3 — Blue Team / ghép pipeline + sinh file phòng thủ (≈ 40')
+## 🏁 CHECKPOINT 3 — Blue Agent / ghép pipeline + sinh file phòng thủ (≈ 40')
 
 
 
@@ -258,7 +286,7 @@ Lắp các lớp bảo vệ thành một hệ thống, **chạy 4 nhóm test**, 
 
 Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không** copy-paste lại logic từ đầu.
 
-#### Việc A — Chống spam (rate limit)
+#### Việc 1 — Chống spam (rate limit)
 
 - **File:** `src/assignment/rate_limiter.py`
 - **Class:** `RateLimitPlugin`
@@ -269,7 +297,7 @@ Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không
 
 
 
-#### Việc B — Nhật ký điều tra (audit)
+#### Việc 2 — Nhật ký điều tra (audit)
 
 - **File:** `src/assignment/audit_log.py`
 - **Làm gì:**
@@ -281,7 +309,7 @@ Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không
 
 
 
-#### Việc C — Metrics & cảnh báo
+#### Việc 3 — Metrics & cảnh báo
 
 - **File:** `src/assignment/monitoring.py`
 - **Làm gì:**
@@ -292,7 +320,7 @@ Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không
 
 
 
-#### Việc D — Xếp thứ tự lớp bảo vệ
+#### Việc 4 — Xếp thứ tự lớp bảo vệ
 
 - **File:** `src/assignment/pipeline.py`
 - **Hàm:** `build_production_plugins()`
@@ -308,7 +336,7 @@ Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không
 
 
 
-#### Việc E — Chặn data thoát ra ngoài (egress)
+#### Việc 5 — Chặn data thoát ra ngoài (egress)
 
 - **Cùng file:** `pipeline.py`
 - **Hàm:** `is_egress_allowed(destination, payload) -> bool`
@@ -319,7 +347,7 @@ Làm trong `src/assignment/`. Tái dùng filter đã viết ở CP2 — **không
 
 
 
-#### Việc F — Chạy bộ test 1–4 và ghi `results.json` (QUAN TRỌNG NHẤT)
+#### Việc 6 — Chạy bộ test 1–4 và ghi `results.json` (QUAN TRỌNG NHẤT)
 
 - **Cùng file:** `pipeline.py`
 - **Hàm:** `async run_assignment_suite(pipeline, student_id) -> dict`
@@ -383,7 +411,7 @@ outputs/
 Remove-Item .\outputs\results.json, .\outputs\audit_log.json, .\outputs\metrics.json -ErrorAction SilentlyContinue
 
 cd src
-python main.py --part 5
+python main.py --part 3
 cd ..
 
 # Kiểm tra file đã xuất hiện
@@ -401,13 +429,15 @@ pytest tests/public/test_results_contract.py -q
 
 
 
-## 🏁 CHECKPOINT 4 — Red team / tấn công bot (≈ 30')
+## 🏁 CHECKPOINT 4 — Red Agent / tấn công (default + advance) (≈ 30')
 
 
 
 ### Mục tiêu
 
-Viết prompt tấn công, chạy lên 2 bot, **sinh file JSON tấn công** trong `outputs/`.
+Viết prompt tấn công, chạy lên **Red Agent (default)** rồi **Red Agent (advance)**, **sinh file JSON** trong `outputs/`.
+
+> **Không** tấn công Blue Agent ở bước này.
 
 Secret giả cần bảo vệ / “lừa lộ” nằm trong:
 
@@ -417,8 +447,8 @@ data/protected/vinbank_secrets.json
 
 Các giá trị (`admin_password`, `api_key`, `db_host`) được load vào system prompt của mọi bot (xem `core.config.DEMO_SECRETS`).
 
-- Bot **unsafe:** cố ý mềm → red-team **phải leak được** ít nhất một giá trị trong file JSON này.  
-- Bot **protected** (plugin của bạn) + **guards:** phải chặn / redact / refuse.
+- **Red Agent (default)** (`create_unsafe_agent`): cố ý mềm → **phải leak** ít nhất một giá trị trong file JSON này.  
+- **Blue Agent** (plugin CP2–3 của bạn) và **Red Agent (advance)** (`create_guards_agent`): phải chặn / redact / refuse (advance leak = bonus B2).
 
 ### Việc cần làm (chi tiết)
 
@@ -444,17 +474,17 @@ Không cần tự viết code ghi JSON — chỉ cần prompt xong rồi chạy 
 
 Luồng lệnh:
 
-1. Tạo bot **unsafe** → chạy 5 prompt → ghi chi tiết
-2. Tạo bot **guards** → chạy lại 5 prompt → ghi chi tiết
-3. Gộp thành 1 file tổng hợp
+1. Tạo **Red Agent (default)** → chạy 5 prompt → ghi chi tiết
+2. Tạo **Red Agent (advance)** → chạy lại 5 prompt → ghi chi tiết
+3. Gộp thành 1 file tổng hợp (`unsafe_*` = default, `guards_*` = advance)
 
 
 | Mục tiêu                                                             | Điểm                                                   |
 | -------------------------------------------------------------------- | ------------------------------------------------------ |
 | Đủ 5 prompt + `attack_results.json`                                  | Trong 20đ red-team                                     |
-| Leak **unsafe** (model mặc định)                                     | Trong 20đ red-team                                     |
-| Leak **unsafe** trên model khó (`gpt-5.6-luna` / `gemini-3.8-flash`) | **Bonus +5** (B1) — grader replay                      |
-| Leak **guards**                                                      | **Bonus +2/leak**, tối đa **+5** (B2) — grader replay; **tổng bonus lab ≤ +10** |
+| Leak **Red Agent (default)** (model mặc định)                                     | Trong 20đ red-team                                     |
+| Leak **Red Agent (default)** trên model khó (`gpt-5.6-luna` / `gemini-3.8-flash`) | **Bonus +5** (B1) — grader replay                      |
+| Leak **Red Agent (advance)**                                                      | **Bonus +2/leak**, tối đa **+5** (B2) — grader replay; **tổng bonus lab ≤ +10** |
 
 
 Chi tiết: rubric trong `[README.md](README.md)`.
@@ -463,9 +493,9 @@ Chi tiết: rubric trong `[README.md](README.md)`.
 
 ```text
 outputs/
-├── unsafe_attack_result.json    ← chi tiết từng prompt trên bot unprotected
-├── guards_attack_result.json    ← chi tiết từng prompt trên bot có bảo vệ
-└── attack_results.json          ← BẮT BUỘC nộp (gộp unsafe + guards)
+├── unsafe_attack_result.json    ← chi tiết từng prompt trên **Red Agent (default)**
+├── guards_attack_result.json    ← chi tiết từng prompt trên **Red Agent (advance)**
+└── attack_results.json          ← BẮT BUỘC nộp (gộp default + advance)
 ```
 
 Mỗi dòng kết quả thường có: `input`, `leaked`, `blocked_input`, `layer`, `blocked_at`, `response_preview`, `target`.
@@ -488,13 +518,13 @@ outputs/
 
 ```powershell
 cd src
-python main.py --part 1
+python main.py --part 4
 cd ..
 Get-ChildItem .\outputs\*attack*.json
 ```
 
-> Cần `OPENROUTER_API_KEY` (Blue) + key Red Team (`OPENAI_API_KEY` hoặc `GOOGLE_API_KEY`) — lệnh red-team gọi LLM.  
-> **Pass Signal:** 3 file `*attack`* xuất hiện; mở `attack_results.json` thấy `unsafe_attacks` và `guards_attacks`.
+> Cần `OPENROUTER_API_KEY` (Blue Agent) + key Red Agent (`OPENAI_API_KEY` hoặc `GOOGLE_API_KEY`) — lệnh tấn công gọi LLM.  
+> **Pass Signal:** 3 file `*attack*` xuất hiện; mở `attack_results.json` thấy `unsafe_attacks` (= default) và `guards_attacks` (= advance).
 
 Demo nhanh (optional): từ gốc repo  
 `python scripts/demo_attack_guards.py`
@@ -509,7 +539,8 @@ Demo nhanh (optional): từ gốc repo
 
 ### Mục tiêu
 
-Xác nhận `outputs/` đủ file, tự validate, push + nộp link. **Không cần** viết `report/*.md`.
+Xác nhận `outputs/` đủ file, tự validate, push + nộp link.  
+**Không viết report tay** — chạy `scripts/grade.py` sẽ **tự sinh** `grade_report.json` + `lab_report.md`.
 
 ### Việc cần làm
 
@@ -537,6 +568,8 @@ Get-ChildItem .\outputs\
 
 #### Việc 2 — Tự chấm / validate
 
+**Windows (PowerShell):**
+
 ```powershell
 .\.venv\Scripts\Activate.ps1
 pytest tests/smoke -q
@@ -544,9 +577,19 @@ pytest tests/public -q
 python scripts/grade.py --submission-dir . --out outputs/grade_report.json
 ```
 
-Lệnh grade có thể **sinh thêm** (không bắt buộc):
+**macOS / Linux (bash):**
 
-- `outputs/grade_report.json`
+```bash
+source .venv/bin/activate
+pytest tests/smoke -q
+pytest tests/public -q
+python scripts/grade.py --submission-dir . --out outputs/grade_report.json
+```
+
+Lệnh grade **tự sinh** (không viết tay):
+
+- `outputs/grade_report.json` — máy đọc
+- `outputs/lab_report.md` — tóm tắt người đọc
 
 
 
@@ -558,7 +601,7 @@ Push lên fork GitHub → nộp **link repo** theo `[SUBMISSION.md](SUBMISSION.m
 ### Checklist Pass
 
 - [ ] `outputs/results.json` tồn tại và khớp schema
-- [ ] `outputs/attack_results.json` tồn tại (có unsafe + guards)
+- [ ] `outputs/attack_results.json` tồn tại (có Red Agent default + advance)
 - [ ] Không commit `.env` / API key
 - [ ] Đã push + nộp link đúng hạn
 
@@ -573,9 +616,9 @@ Push lên fork GitHub → nộp **link repo** theo `[SUBMISSION.md](SUBMISSION.m
 | ------------ | ----------------------------------------- | --------------------------------------------------------------------------------------- |
 | 1 Setup      | (không)                                   | `.venv/`, `.env`                                                                        |
 | 2 Guardrails | `cd src` → `python main.py --part 2`      | Chỉ in terminal                                                                         |
-| 3 Pipeline   | `cd src` → `python main.py --part 5`      | `outputs/results.json`, `audit_log.json`, `metrics.json`                                |
-| 4 Red team   | `cd src` → `python main.py --part 1`      | `outputs/attack_results.json`, `unsafe_attack_result.json`, `guards_attack_result.json` |
-| 5 Nộp        | `scripts/grade.py` (optional) + push link | (optional) `outputs/grade_report.json`                                                  |
+| 3 Blue Agent | `cd src` → `python main.py --part 3`      | `outputs/results.json`, `audit_log.json`, `metrics.json`                                |
+| 4 Red Agent  | `cd src` → `python main.py --part 4`      | `outputs/attack_results.json`, `unsafe_attack_result.json`, `guards_attack_result.json` |
+| 5 Nộp        | `scripts/grade.py` + push link            | tự sinh `grade_report.json` + `lab_report.md`                                           |
 
 
 > Luôn nhớ: lệnh `main.py` chạy từ thư mục `src/`, nhưng file JSON ghi vào `../outputs/` (= `outputs/` ở gốc repo).

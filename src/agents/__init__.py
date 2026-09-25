@@ -6,18 +6,35 @@ an agent factory is actually requested.
 from __future__ import annotations
 
 __all__ = [
-    "create_unsafe_agent", "create_protected_agent", "test_agent",
-    "create_guards_agent", "check_secret_leak", "assess_untrusted_document",
+    "create_blue_agent",
+    "create_red_agent_default",
+    "create_red_agent_advance",
+    # aliases cũ
+    "create_protected_agent",
+    "create_unsafe_agent",
+    "create_guards_agent",
+    "test_agent",
+    "check_secret_leak",
+    "assess_untrusted_document",
     "authorize_guards_action",
 ]
 
 
 def __getattr__(name: str):
-    if name in {"create_unsafe_agent", "create_protected_agent", "test_agent"}:
+    if name in {
+        "create_blue_agent",
+        "create_red_agent_default",
+        "create_protected_agent",
+        "create_unsafe_agent",
+        "test_agent",
+    }:
         from agents import agent
         return getattr(agent, name)
     if name in {
-        "create_guards_agent", "check_secret_leak", "assess_untrusted_document",
+        "create_red_agent_advance",
+        "create_guards_agent",
+        "check_secret_leak",
+        "assess_untrusted_document",
         "authorize_guards_action",
     }:
         from agents import guards_agent
