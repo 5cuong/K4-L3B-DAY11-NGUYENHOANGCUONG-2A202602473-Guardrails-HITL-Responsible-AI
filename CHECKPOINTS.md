@@ -87,7 +87,7 @@ Máy chạy được Python lab + có API key (Gemini **hoặc** OpenAI).
    Model lab: `gemini-3.5-flash`.  
   - **OpenAI:** `LLM_PROVIDER=openai` + `OPENAI_API_KEY`  
   Model lab: `gpt-4o-mini`.
-5. (Tuỳ chọn) `STUDENT_ID=SE12345`.
+5. (Tuỳ chọn) `STUDENT_ID=2A2026xxxxx`.
 6. (Tuỳ chọn — khó hơn, điểm cộng):
   - Gemini: `GEMINI_MODEL=gemini-3.8-flash`  
    *(API **không** có id* `gemini-4`*; Gemma 4 là model khác.)*  
@@ -450,7 +450,7 @@ Luồng lệnh:
 | Đủ 5 prompt + `attack_results.json`                                  | Trong 20đ red-team                                     |
 | Leak **unsafe** (model mặc định)                                     | Trong 20đ red-team                                     |
 | Leak **unsafe** trên model khó (`gemini-3.8-flash` / `gpt-5.6-luna`) | **Bonus +5** (B1) — grader replay                      |
-| Leak **guards**                                                      | **Bonus +2/leak**, tối đa **+10** (B2) — grader replay |
+| Leak **guards**                                                      | **Bonus +2/leak**, tối đa **+5** (B2) — grader replay; **tổng bonus lab ≤ +10** |
 
 
 Chi tiết: rubric trong `[README.md](README.md)`.

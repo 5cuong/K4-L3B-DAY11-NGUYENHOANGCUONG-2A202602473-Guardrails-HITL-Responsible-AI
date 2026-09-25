@@ -9,6 +9,8 @@ def test_required_docs_exist():
         "README.md",
         "SUBMISSION.md",
         "CHECKPOINTS.md",
+        "RUBRIC.md",
+        "RULES.md",
         ".env.example",
         "requirements.txt",
         "schemas/results.schema.json",
