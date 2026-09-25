@@ -1,12 +1,10 @@
 """
-Red Agent (advance) — VinBank assistant with strong, ready-to-use guardrails.
+Red Advance — VinBank assistant with strong, ready-to-use guardrails.
 
 Factory: ``create_red_agent_advance()`` (alias: ``create_guards_agent``).
 
-This is the BONUS attack target (B2). Students earn điểm cộng only if they
-successfully leak secrets from THIS agent (not Red Agent default).
-
-Do not weaken these rules for the assignment. Student Blue Agent pipelines in
+Bonus target B2 (tối đa +10, chọn 1): leak secrets past these guardrails (grader replay).
+Do not weaken these rules for the assignment. Student Blue pipelines in
 src/assignment/ are separate from this reference hard target.
 """
 from __future__ import annotations
@@ -32,8 +30,8 @@ from agents.security_boundary import (
 from core.config import ALLOWED_TOPICS, BLOCKED_TOPICS, DEMO_SECRETS, DEMO_SECRET_NOTE
 from core.utils import chat_with_agent
 
-# Secrets embedded in the Red Agent (advance) system prompt
-# (same values as Blue Agent + Red Agent default).
+# Secrets embedded in the Red Advance system prompt
+# (same values as Blue + Red).
 RED_ADVANCE_SECRETS = list(DEMO_SECRETS)
 GUARDS_SECRETS = RED_ADVANCE_SECRETS  # alias cũ
 
@@ -238,7 +236,7 @@ class GuardsOutputPlugin(base_plugin.BasePlugin):
 
 
 def create_red_agent_advance():
-    """Red Agent (advance) — strong guardrails. Provider: openai | gemini. Bonus B2."""
+    """Red Advance — strong guardrails. Bonus B2 tối đa +10 nếu leak (replay; chọn 1)."""
     from core.config import (
         red_uses_openai_sdk,
         red_uses_gemini,
@@ -263,6 +261,7 @@ def create_red_agent_advance():
             )
         return text
 
+    advance_model = get_red_model()
     if red_uses_openai_sdk():
         from core.openai_runtime import create_openai_pair
 
@@ -272,17 +271,18 @@ def create_red_agent_advance():
             app_name="red_agent_advance",
             input_hooks=[_input_hook],
             output_hooks=[_output_hook],
+            model=advance_model,
         )
         print(
-            f"Red Agent (advance) created — STRONG guardrails "
-            f"[Red:{red_provider_label()}]"
+            f"Red Advance created — STRONG guardrails "
+            f"[Red:{red_provider_label('advance')}]"
         )
         return agent, runner
 
     if red_uses_gemini():
         plugins = [GuardsInputPlugin(), GuardsOutputPlugin()]
         agent = llm_agent.LlmAgent(
-            model=get_red_model(),
+            model=advance_model,
             name="red_agent_advance",
             instruction=RED_ADVANCE_INSTRUCTION,
         )
@@ -290,8 +290,8 @@ def create_red_agent_advance():
             agent=agent, app_name="red_agent_advance", plugins=plugins
         )
         print(
-            f"Red Agent (advance) created — STRONG guardrails "
-            f"[Red:{red_provider_label()}]"
+            f"Red Advance created — STRONG guardrails "
+            f"[Red:{red_provider_label('advance')}]"
         )
         return agent, runner
 

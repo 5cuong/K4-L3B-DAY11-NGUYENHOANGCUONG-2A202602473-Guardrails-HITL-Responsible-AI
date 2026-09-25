@@ -5,9 +5,9 @@
 > Artifact chấm = file trong `outputs/` — **không** viết `report/*.md` tay.  
 > Checkpoint 5: `scripts/grade.py` **tự sinh** `outputs/grade_report.json` + `outputs/lab_report.md`.  
 > Protected data (red-team phải leak): `data/protected/vinbank_secrets.json`.  
-> **Blue Agent:** OpenRouter `liquid/lfm-2.5-2.6b` (cố định).  
-> **Red Agent (default / advance):** `gpt-4o-mini` (OpenAI) **hoặc** `gemini-3.5-flash` (Gemini).  
-> Bonus B1: `gpt-5.6-luna` / `gemini-3.8-flash` — xem [`RUBRIC.md`](RUBRIC.md).
+> **Blue:** OpenRouter `liquid/lfm-2.5-2.6b` (cố định).  
+> **Red / Red Advance:** `gpt-4o-mini` (OpenAI) **hoặc** `gemini-3.5-flash` (Gemini).  
+> Điểm cộng: chọn **một** — **Red** tối đa +5 **hoặc** **Red Advance** tối đa +10 — xem [`RUBRIC.md`](RUBRIC.md).
 
 ---
 
@@ -77,13 +77,14 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 | Loại | File |
 |------|------|
-| Phòng thủ (**Blue Agent**) | `outputs/results.json` |
-| Tấn công (**Red Agent** default + advance) | `outputs/attack_results.json` |
+| Phòng thủ (**Blue**) | `outputs/results.json` |
+| Tấn công (**Red** + **Red Advance**) | `outputs/attack_results.json` |
 
-**Bonus lab (grader replay — không tự cấp từ JSON; tổng ≤ +10):**
+**Bonus lab** (grader replay — không tự cấp từ JSON; chọn một trong hai):
 
-- **B1 +5** nếu leak **Red Agent (default)** trên model khó (`gpt-5.6-luna` / `gemini-3.8-flash`)
-- **B2 +2 / leak** trên **Red Agent (advance)** (tối đa **+5**)
+- **B1** — leak **Red**: tối đa **+5**
+- **B2** — leak **Red Advance**: tối đa **+10**
+- **Không** cộng B1 + B2
 
 ---
 
@@ -93,7 +94,6 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 ```json
 {
-  "student_id": "2A2026xxxxx",
   "framework": "google-adk",
   "safe_queries": [
     {"input": "...", "blocked": false, "layer": null, "response_preview": "..."}
@@ -121,7 +121,6 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 ```json
 {
-  "student_id": "2A2026xxxxx",
   "unsafe_attacks": [
     {"id": 1, "category": "Completion", "input": "...", "response_preview": "...", "leaked": true, "target": "unsafe"}
   ],

@@ -45,7 +45,7 @@ Chi tiết: [`SUBMISSION.md`](SUBMISSION.md).
 
 - Giữ API key trong file `.env` **local** — **không commit** `.env`.
 - Chỉ commit `.env.example` (không có key thật).
-- Secret trong lab (`admin123`, `sk-vinbank-secret-2024`, …) là **DEMO** — không phải secret thật của ngân hàng; vẫn phải bảo vệ trên **Blue Agent** và **Red Agent (advance)** đúng yêu cầu bài.
+- Secret trong lab (`admin123`, `sk-vinbank-secret-2024`, …) là **DEMO** — không phải secret thật của ngân hàng; vẫn phải bảo vệ trên **Blue** và **Red Advance** đúng yêu cầu bài.
 - Không dán API key vào README, chat công khai, issue, hay commit message.
 
 ---
@@ -60,4 +60,4 @@ Chi tiết: [`SUBMISSION.md`](SUBMISSION.md).
 
 ## 7. Bonus lab
 
-- Bonus trong [`RUBRIC.md`](RUBRIC.md) là **điểm cộng cho bài lab** (tối đa +10), **không** phải điểm giơ tay / phát biểu / pitching trên lớp.
+- Bonus trong [`RUBRIC.md`](RUBRIC.md) là **điểm cộng cho bài lab** (chọn B1 tối đa +5 hoặc B2 tối đa +10), **không** phải điểm giơ tay / phát biểu / pitching trên lớp.

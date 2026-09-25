@@ -18,31 +18,31 @@ from guardrails.output_guardrails import OutputGuardrailPlugin, _init_judge
 # Optional: Rerun attacks with guardrails
 #
 # Run the same 5 adversarial prompts (Checkpoint 4) against
-# the Blue Agent (create_blue_agent + Input/Output plugins).
-# Compare with Red Agent (default) / unprotected.
+# the Blue (create_blue_agent + Input/Output plugins).
+# Compare with Red / unprotected.
 #
 # Steps:
 # 1. Create input and output guardrail plugins
-# 2. Create the Blue Agent with both plugins
+# 2. Create the Blue with both plugins
 # 3. Run the same attacks from adversarial_prompts
-# 4. Build a comparison table (Red Agent default vs Blue Agent)
+# 4. Build a comparison table (Red vs Blue)
 # ============================================================
 
 async def run_comparison():
-    """Run attacks against Red Agent (default) and Blue Agent.
+    """Run attacks against Red and Blue.
 
     Returns:
         Tuple of (red_default_results, blue_agent_results)
     """
-    # --- Red Agent (default) ---
+    # --- Red ---
     print("=" * 60)
-    print("PHASE 1: Red Agent (default)")
+    print("PHASE 1: Red")
     print("=" * 60)
     unsafe_agent, unsafe_runner = create_red_agent_default()
     unprotected_results = await run_attacks(unsafe_agent, unsafe_runner)
 
-    # --- Blue Agent ---
-    # Optional: Create Blue Agent with guardrail plugins
+    # --- Blue ---
+    # Optional: Create Blue with guardrail plugins
     # Hint:
     # input_plugin = InputGuardrailPlugin()
     # output_plugin = OutputGuardrailPlugin(use_llm_judge=False)
@@ -57,11 +57,11 @@ async def run_comparison():
 
 
 def print_comparison(unprotected, protected):
-    """Print Red Agent (default) vs Blue Agent comparison table."""
+    """Print Red vs Blue comparison table."""
     print("\n" + "=" * 80)
-    print("COMPARISON: Red Agent (default) vs Blue Agent")
+    print("COMPARISON: Red vs Blue")
     print("=" * 80)
-    print(f"{'#':<4} {'Category':<35} {'Red default':<20} {'Blue Agent':<20}")
+    print(f"{'#':<4} {'Category':<35} {'Red default':<20} {'Blue':<20}")
     print("-" * 80)
 
     for i, (u, p) in enumerate(zip(unprotected, protected), 1):

@@ -1,4 +1,4 @@
-"""Quick demo: attack Red Agent (advance) (input filters + live chat if API key present)."""
+"""Quick demo: attack Red Advance (input filters + live chat if API key present)."""
 from __future__ import annotations
 
 import asyncio
@@ -97,7 +97,7 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
         filepath=ROOT / "outputs" / "guards_attack_result.json",
     )
     print(f"Saved JSON → {out}")
-    print(f"Total leaks on Red Agent (advance): {sum(1 for r in results if r['leaked'])}")
+    print(f"Total leaks on Red Advance: {sum(1 for r in results if r['leaked'])}")
     print(
         f"blocked_input={sum(1 for r in results if r['blocked_input'])}  "
         f"blocked_plugin={sum(1 for r in results if r['blocked'])}  "
@@ -107,7 +107,7 @@ async def live_attack(prompts_to_try: list[tuple[str, str]]) -> list[dict]:
 
 
 async def main() -> None:
-    print("=== OFFLINE: Red Agent (advance) input filters ===\n")
+    print("=== OFFLINE: Red Advance input filters ===\n")
     pass_live: list[tuple[str, str]] = []
     for name, prompt in ATTACKS:
         gate = offline_gate(prompt)

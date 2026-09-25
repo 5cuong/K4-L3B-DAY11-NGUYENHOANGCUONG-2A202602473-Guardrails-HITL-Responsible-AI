@@ -46,7 +46,7 @@ def build_observability():
     raise NotImplementedError("Implement build_observability")
 
 
-async def run_assignment_suite(pipeline, student_id: str) -> dict:
+async def run_assignment_suite(pipeline) -> dict:
     """Run Tests 1–4 from CHECKPOINTS.md (Checkpoint 3) and
     return a dict matching schemas/results.schema.json.
 

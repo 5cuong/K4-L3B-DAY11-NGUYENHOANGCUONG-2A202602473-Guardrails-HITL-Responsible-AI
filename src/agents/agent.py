@@ -1,11 +1,18 @@
 """
 Lab 11 — Agent factories
 
-  Blue Agent          → create_blue_agent(plugins)
-                        OpenRouter liquid/lfm-2.5-2.6b (LOCKED) + student plugins
-  Red Agent (default) → create_red_agent_default()
-                        OpenAI gpt-4o-mini hoặc Gemini gemini-3.5-flash (mềm)
-  Red Agent (advance) → create_red_agent_advance()  (xem guards_agent.py)
+  Blue         → create_blue_agent(plugins)
+                 OpenRouter liquid/lfm-2.5-2.6b (LOCKED) + student plugins
+  Red          → create_red_agent_default()
+                 mềm (không guardrails mạnh)
+  Red Advance  → create_red_agent_advance()  (xem guards_agent.py)
+                 cứng (có guardrails)
+
+  Model LLM (tách với tên agent):
+    mềm  = gpt-4o-mini / gemini-3.5-flash   → điểm bắt buộc CP4
+    khó  = gpt-5.6-luna / gemini-3.8-flash  → tuỳ chọn (không phải tên agent)
+
+  Bonus: chọn một — Red tối đa +5 (B1) hoặc Red Advance tối đa +10 (B2)
 
 Dữ liệu bảo vệ: data/protected/vinbank_secrets.json → DEMO_SECRET_NOTE
 
@@ -17,7 +24,7 @@ from core.config import (
     red_uses_gemini,
     red_provider_label,
     blue_provider_label,
-    get_red_model,
+    get_red_model_default,
 )
 from core.utils import chat_with_agent
 
@@ -50,7 +57,8 @@ PROTECTED_INSTRUCTION = BLUE_INSTRUCTION
 
 
 def create_red_agent_default():
-    """Red Agent (default) — NO guardrails. Provider: openai | gemini."""
+    """Red — NO guardrails. Model mềm cố định (4o-mini / 3.5-flash)."""
+    soft = get_red_model_default()
     if red_uses_openai_sdk():
         from core.openai_runtime import create_openai_pair
 
@@ -59,10 +67,11 @@ def create_red_agent_default():
             instruction=RED_DEFAULT_INSTRUCTION,
             app_name="red_agent_default",
             temperature=0.7,
+            model=soft,
         )
         print(
-            f"Red Agent (default) created — NO guardrails! "
-            f"[Red:{red_provider_label()}]"
+            f"Red created — NO guardrails! "
+            f"[Red:{red_provider_label('default')}]"
         )
         return agent, runner
 
@@ -71,14 +80,14 @@ def create_red_agent_default():
         from google.adk import runners
 
         agent = llm_agent.LlmAgent(
-            model=get_red_model(),
+            model=soft,
             name="red_agent_default",
             instruction=RED_DEFAULT_INSTRUCTION,
         )
         runner = runners.InMemoryRunner(agent=agent, app_name="red_agent_default")
         print(
-            f"Red Agent (default) created — NO guardrails! "
-            f"[Red:{red_provider_label()}]"
+            f"Red created — NO guardrails! "
+            f"[Red:{red_provider_label('default')}]"
         )
         return agent, runner
 
@@ -88,7 +97,7 @@ def create_red_agent_default():
 
 
 def create_blue_agent(plugins: list):
-    """Blue Agent — ALWAYS OpenRouter liquid/lfm-2.5-2.6b + student plugins."""
+    """Blue — ALWAYS OpenRouter liquid/lfm-2.5-2.6b + student plugins."""
     from core.openai_runtime import create_blue_pair
 
     agent, runner = create_blue_pair(
@@ -98,7 +107,7 @@ def create_blue_agent(plugins: list):
         plugins=plugins,
     )
     print(
-        f"Blue Agent created WITH guardrails! "
+        f"Blue created WITH guardrails! "
         f"[Blue:{blue_provider_label()}]"
     )
     return agent, runner

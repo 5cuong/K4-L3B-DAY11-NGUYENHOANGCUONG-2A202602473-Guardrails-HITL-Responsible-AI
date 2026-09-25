@@ -8,10 +8,12 @@ Hai tầng model (không trộn):
        https://openrouter.ai/liquid/lfm-2.5-2.6b
     → Cần ``OPENROUTER_API_KEY``
 
-  Red Team (CP4, unsafe + guards attacks)
-    → Chọn một: OpenAI ``gpt-4o-mini``  hoặc  Gemini ``gemini-3.5-flash``
+  Red Team (CP4)
+    → Chọn một provider: OpenAI hoặc Gemini
+    → Model mềm (điểm bắt buộc CP4): ``gpt-4o-mini`` / ``gemini-3.5-flash``
+    → Model khó (tuỳ chọn): ``gpt-5.6-luna`` / ``gemini-3.8-flash``
+    → Bonus: chọn một — leak **Red** tối đa +5 **hoặc** leak **Red Advance** tối đa +10
     → ``RED_TEAM_PROVIDER=openai|gemini`` (alias: ``LLM_PROVIDER``)
-    → Bonus B1 (khó hơn): ``gpt-5.6-luna`` / ``gemini-3.8-flash``
 """
 from __future__ import annotations
 
@@ -38,9 +40,10 @@ BLUE_MODEL = "liquid/lfm-2.5-2.6b"
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 DEFAULT_OPENROUTER_MODEL = BLUE_MODEL  # alias
 
-# --- Red Team defaults ---
+# --- Red Team ---
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 DEFAULT_GEMINI_MODEL = "gemini-3.5-flash"
+# Model khó — tuỳ chọn (không phải tên agent; không bắt buộc để có B1/B2)
 HARD_OPENAI_MODEL = "gpt-5.6-luna"
 HARD_GEMINI_MODEL = "gemini-3.8-flash"
 
@@ -140,6 +143,7 @@ def get_red_provider() -> str:
 
 
 def get_red_model() -> str:
+    """Model Red Team từ .env (cùng cho default + advance)."""
     if get_red_provider() == PROVIDER_GEMINI:
         return (
             os.environ.get("GEMINI_MODEL", DEFAULT_GEMINI_MODEL).strip()
@@ -151,6 +155,16 @@ def get_red_model() -> str:
     )
 
 
+def get_red_model_default() -> str:
+    """Alias — Red dùng cùng model .env."""
+    return get_red_model()
+
+
+def get_red_model_advance() -> str:
+    """Alias — Red Advance dùng cùng model .env."""
+    return get_red_model()
+
+
 def get_openai_api_key() -> str:
     return os.environ.get("OPENAI_API_KEY", "").strip()
 
@@ -159,7 +173,9 @@ def red_openai_client_kwargs() -> dict:
     return {"api_key": get_openai_api_key() or None}
 
 
-def red_provider_label() -> str:
+def red_provider_label(tier: str = "advance") -> str:
+    # tier giữ để tương thích call site; cả hai agent cùng model .env
+    _ = tier
     return f"{get_red_provider()}:{get_red_model()}"
 
 
@@ -180,6 +196,7 @@ def get_llm_provider() -> str:
 
 
 def get_model_name() -> str:
+    """Model khai trong attack_results — khớp .env lúc chạy CP4."""
     return get_red_model()
 
 
@@ -198,7 +215,7 @@ def provider_label() -> str:
 
 
 def is_harder_model() -> bool:
-    """True if Red Team uses a documented stretch model (bonus B1)."""
+    """True nếu .env đang trỏ model khó (luna / 3.8) — tuỳ chọn, không phải tên agent."""
     m = get_red_model().lower()
     if m in {DEFAULT_OPENAI_MODEL.lower(), DEFAULT_GEMINI_MODEL.lower()}:
         return False
@@ -218,36 +235,32 @@ def is_harder_model() -> bool:
 
 
 def setup_api_key():
-    """Ensure keys for Blue (OpenRouter) + Red (OpenAI or Gemini)."""
-    # Blue Team — always required for protected / pipeline demos that call LLM
+    """Ensure keys for Blue (OpenRouter) + Red / Red Advance (OpenAI or Gemini)."""
     if not get_openrouter_api_key():
         os.environ["OPENROUTER_API_KEY"] = input(
-            "Enter OpenRouter API Key (Blue Team): "
+            "Enter OpenRouter API Key (Blue): "
         ).strip()
-    print(f"Blue Team  — {blue_provider_label()}  [LOCKED]")
+    print(f"Blue  — {blue_provider_label()}  [LOCKED]")
 
-    # Red Team
     red = get_red_provider()
     model = get_red_model()
     if red == PROVIDER_GEMINI:
         if not os.environ.get("GOOGLE_API_KEY", "").strip():
-            os.environ["GOOGLE_API_KEY"] = input("Enter Google API Key (Red Team): ").strip()
+            os.environ["GOOGLE_API_KEY"] = input("Enter Google API Key (Red): ").strip()
         os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "0"
-        print(f"Red Team   — gemini:{model}")
+        print(f"Red / Red Advance  — gemini:{model}")
     else:
         if not get_openai_api_key():
-            os.environ["OPENAI_API_KEY"] = input("Enter OpenAI API Key (Red Team): ").strip()
-        print(f"Red Team   — openai:{model}")
+            os.environ["OPENAI_API_KEY"] = input("Enter OpenAI API Key (Red): ").strip()
+        print(f"Red / Red Advance  — openai:{model}")
 
+    print(
+        "Bonus: chọn một — Red tối đa +5 (B1) hoặc Red Advance tối đa +10 (B2)."
+    )
     if is_harder_model():
         print(
-            f"Stretch Red Team model — leak OK = bonus B1. "
+            f"Model khó ({model}) — tuỳ chọn; không đổi tên agent. "
             f"(Gợi ý: {HARD_OPENAI_MODEL} / {HARD_GEMINI_MODEL})"
-        )
-    else:
-        print(
-            f"Red Team default ({DEFAULT_OPENAI_MODEL} / {DEFAULT_GEMINI_MODEL}). "
-            "Unsafe prompt cố ý mềm để học tấn công."
         )
 
 

@@ -215,13 +215,14 @@ def create_openai_pair(
     input_hooks: list | None = None,
     output_hooks: list | None = None,
     temperature: float = 0.4,
+    model: str | None = None,
 ) -> tuple[OpenAIAgent, OpenAIRunner]:
-    """Red Team OpenAI path (gpt-4o-mini / harder)."""
+    """Red Team OpenAI path (default = soft model; advance may pass harder)."""
     return _make_pair(
         name=name,
         instruction=instruction,
         app_name=app_name,
-        model=get_red_model(),
+        model=model or get_red_model(),
         provider=get_red_provider(),
         client_kwargs=red_openai_client_kwargs(),
         plugins=plugins,

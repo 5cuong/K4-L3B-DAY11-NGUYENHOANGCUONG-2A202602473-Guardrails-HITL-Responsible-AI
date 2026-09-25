@@ -4,7 +4,6 @@
   "title": "Assignment11Results",
   "type": "object",
   "required": [
-    "student_id",
     "framework",
     "safe_queries",
     "attack_queries",
@@ -13,11 +12,6 @@
   ],
   "additionalProperties": true,
   "properties": {
-    "student_id": {
-      "type": "string",
-      "minLength": 3,
-      "pattern": "^[A-Za-z0-9_-]+$"
-    },
     "framework": {
       "type": "string",
       "minLength": 2
