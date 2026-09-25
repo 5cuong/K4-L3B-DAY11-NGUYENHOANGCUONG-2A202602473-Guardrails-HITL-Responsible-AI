@@ -14,8 +14,32 @@ def test_required_docs_exist():
         ".env.example",
         "requirements.txt",
         "schemas/results.schema.json",
+        "data/protected/vinbank_secrets.json",
     ]:
         assert (ROOT / rel).is_file(), f"Missing {rel}"
+
+
+def test_protected_data_json_exists():
+    path = ROOT / "data" / "protected" / "vinbank_secrets.json"
+    assert path.is_file(), "Missing data/protected/vinbank_secrets.json"
+    import json
+    import sys
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    secrets = data.get("secrets") or {}
+    assert secrets.get("admin_password")
+    assert secrets.get("api_key")
+    assert secrets.get("db_host")
+    assert isinstance(data.get("leak_targets"), list) and len(data["leak_targets"]) >= 3
+
+    src = ROOT / "src"
+    sys.path.insert(0, str(src))
+    from core.config import DEMO_SECRETS, DEMO_SECRET_NOTE, load_protected_payload
+
+    payload = load_protected_payload()
+    assert payload["secrets"]["admin_password"] == secrets["admin_password"]
+    assert len(DEMO_SECRETS) >= 3
+    assert secrets["admin_password"] in DEMO_SECRET_NOTE
 
 
 def test_assignment_starters_exist():

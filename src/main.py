@@ -145,7 +145,7 @@ async def part5_assignment_suite():
         run_assignment_suite,
     )
 
-    student_id = os.environ.get("STUDENT_ID", "").strip() or "SE00000"
+    student_id = os.environ.get("STUDENT_ID", "").strip() or "2A2026xxxxx"
     try:
         plugins = build_production_plugins(use_llm_judge=False)
         audit, monitor = build_observability()

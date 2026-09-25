@@ -233,28 +233,33 @@ class GuardsOutputPlugin(base_plugin.BasePlugin):
 
 
 def create_guards_agent():
-    """Create VinBank agent with strong input + output guardrails (bonus target)."""
-    from core.config import get_llm_provider, get_model_name, PROVIDER_OPENAI, provider_label
+    """Red Team bonus target — strong guardrails. Provider: openai | gemini."""
+    from core.config import (
+        red_uses_openai_sdk,
+        red_uses_gemini,
+        red_provider_label,
+        get_red_model,
+    )
 
-    if get_llm_provider() == PROVIDER_OPENAI:
+    def _input_hook(text: str) -> str | None:
+        if detect_injection_strong(text) or topic_filter_strong(text):
+            return (
+                "I can't help with that request. "
+                "I only assist with VinBank banking questions."
+            )
+        return None
+
+    def _output_hook(text: str) -> str:
+        filtered = content_filter_strong(text)
+        if not filtered["safe"]:
+            return (
+                "I cannot share internal system details. "
+                "How else can I help with your VinBank account or banking needs?"
+            )
+        return text
+
+    if red_uses_openai_sdk():
         from core.openai_runtime import create_openai_pair
-
-        def _input_hook(text: str) -> str | None:
-            if detect_injection_strong(text) or topic_filter_strong(text):
-                return (
-                    "I can't help with that request. "
-                    "I only assist with VinBank banking questions."
-                )
-            return None
-
-        def _output_hook(text: str) -> str:
-            filtered = content_filter_strong(text)
-            if not filtered["safe"]:
-                return (
-                    "I cannot share internal system details. "
-                    "How else can I help with your VinBank account or banking needs?"
-                )
-            return text
 
         agent, runner = create_openai_pair(
             name="guards_assistant",
@@ -263,20 +268,25 @@ def create_guards_agent():
             input_hooks=[_input_hook],
             output_hooks=[_output_hook],
         )
-        print(f"Guards agent created — STRONG guardrails [{provider_label()}]")
+        print(f"Guards agent created — STRONG guardrails [Red:{red_provider_label()}]")
         return agent, runner
 
-    plugins = [GuardsInputPlugin(), GuardsOutputPlugin()]
-    agent = llm_agent.LlmAgent(
-        model=get_model_name(),
-        name="guards_assistant",
-        instruction=GUARDS_INSTRUCTION,
+    if red_uses_gemini():
+        plugins = [GuardsInputPlugin(), GuardsOutputPlugin()]
+        agent = llm_agent.LlmAgent(
+            model=get_red_model(),
+            name="guards_assistant",
+            instruction=GUARDS_INSTRUCTION,
+        )
+        runner = runners.InMemoryRunner(
+            agent=agent, app_name="guards_test", plugins=plugins
+        )
+        print(f"Guards agent created — STRONG guardrails [Red:{red_provider_label()}]")
+        return agent, runner
+
+    raise RuntimeError(
+        "RED_TEAM_PROVIDER phải là openai hoặc gemini. Xem .env.example."
     )
-    runner = runners.InMemoryRunner(
-        agent=agent, app_name="guards_test", plugins=plugins
-    )
-    print(f"Guards agent created — STRONG guardrails [{provider_label()}]")
-    return agent, runner
 
 
 async def smoke_test_guards_agent():

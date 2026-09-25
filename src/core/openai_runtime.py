@@ -1,14 +1,24 @@
 """
-OpenAI runtime — parallel path to Google ADK / Gemini.
+OpenAI SDK runtime — dùng cho:
 
-Default model is gpt-4o-mini. Stretch harder target: gpt-5.6-luna (OPENAI_MODEL).
+  Blue Team → OpenRouter liquid/lfm-2.5-2.6b (create_blue_pair)
+  Red Team  → OpenAI gpt-4o-mini (create_openai_pair) khi RED_TEAM_PROVIDER=openai
+
+Gemini Red Team dùng Google ADK trong agents/*.py — không đi qua file này.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from core.config import get_model_name
+from core.config import (
+    get_red_model,
+    get_red_provider,
+    get_blue_model,
+    get_blue_provider,
+    blue_client_kwargs,
+    red_openai_client_kwargs,
+)
 
 
 @dataclass
@@ -25,20 +35,21 @@ class _MockInvocationContext:
 
 @dataclass
 class OpenAIRunner:
-    """Minimal runner: optional ADK-style plugins + OpenAI Chat Completions."""
+    """Optional ADK-style plugins + Chat Completions."""
 
     app_name: str
-    model: str = field(default_factory=get_model_name)
+    model: str
     plugins: list = field(default_factory=list)
     provider: str = "openai"
     temperature: float = 0.4
+    client_kwargs: dict = field(default_factory=dict)
     input_hooks: list[Callable[[str], str | None]] = field(default_factory=list)
     output_hooks: list[Callable[[str], str]] = field(default_factory=list)
 
     def _client(self):
         from openai import OpenAI
 
-        return OpenAI()
+        return OpenAI(**(self.client_kwargs or {}))
 
     async def chat(self, agent: OpenAIAgent, user_message: str) -> str:
         for hook in self.input_hooks:
@@ -89,7 +100,6 @@ class OpenAIRunner:
                     invocation_context=ctx, user_message=user_content
                 )
             except TypeError:
-                # Some plugins may be sync
                 result = cb(invocation_context=ctx, user_message=user_content)
             if result is None:
                 continue
@@ -104,7 +114,6 @@ class OpenAIRunner:
         except ImportError:
             return text
 
-        # Build a duck-typed llm_response for after_model_callback
         content = types.Content(
             role="model", parts=[types.Part.from_text(text=text)]
         )
@@ -145,6 +154,58 @@ def _content_to_text(content: Any) -> str:
     return "".join(chunks)
 
 
+def _make_pair(
+    *,
+    name: str,
+    instruction: str,
+    app_name: str,
+    model: str,
+    provider: str,
+    client_kwargs: dict,
+    plugins: list | None = None,
+    input_hooks: list | None = None,
+    output_hooks: list | None = None,
+    temperature: float = 0.4,
+) -> tuple[OpenAIAgent, OpenAIRunner]:
+    agent = OpenAIAgent(name=name, instruction=instruction, provider=provider)
+    runner = OpenAIRunner(
+        app_name=app_name,
+        model=model,
+        provider=provider,
+        client_kwargs=client_kwargs,
+        plugins=list(plugins or []),
+        input_hooks=list(input_hooks or []),
+        output_hooks=list(output_hooks or []),
+        temperature=temperature,
+    )
+    return agent, runner
+
+
+def create_blue_pair(
+    *,
+    name: str,
+    instruction: str,
+    app_name: str,
+    plugins: list | None = None,
+    input_hooks: list | None = None,
+    output_hooks: list | None = None,
+    temperature: float = 0.4,
+) -> tuple[OpenAIAgent, OpenAIRunner]:
+    """Blue Team — always OpenRouter liquid/lfm-2.5-2.6b."""
+    return _make_pair(
+        name=name,
+        instruction=instruction,
+        app_name=app_name,
+        model=get_blue_model(),
+        provider=get_blue_provider(),
+        client_kwargs=blue_client_kwargs(),
+        plugins=plugins,
+        input_hooks=input_hooks,
+        output_hooks=output_hooks,
+        temperature=temperature,
+    )
+
+
 def create_openai_pair(
     *,
     name: str,
@@ -155,13 +216,16 @@ def create_openai_pair(
     output_hooks: list | None = None,
     temperature: float = 0.4,
 ) -> tuple[OpenAIAgent, OpenAIRunner]:
-    agent = OpenAIAgent(name=name, instruction=instruction)
-    runner = OpenAIRunner(
+    """Red Team OpenAI path (gpt-4o-mini / harder)."""
+    return _make_pair(
+        name=name,
+        instruction=instruction,
         app_name=app_name,
-        model=get_model_name(),
-        plugins=list(plugins or []),
-        input_hooks=list(input_hooks or []),
-        output_hooks=list(output_hooks or []),
+        model=get_red_model(),
+        provider=get_red_provider(),
+        client_kwargs=red_openai_client_kwargs(),
+        plugins=plugins,
+        input_hooks=input_hooks,
+        output_hooks=output_hooks,
         temperature=temperature,
     )
-    return agent, runner
