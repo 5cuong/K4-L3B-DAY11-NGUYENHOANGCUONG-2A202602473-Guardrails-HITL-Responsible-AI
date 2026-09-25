@@ -1,21 +1,31 @@
 """
 Lab 11 — Main Entry Point
 
-``--part`` khớp số Checkpoint (dễ nhớ):
+Chạy từ **gốc repo** (không cần ``cd src``):
 
-    python main.py              # Core: 2 → 3 → 4
-    python main.py --part 2     # Checkpoint 2 — guardrails
-    python main.py --part 3     # Checkpoint 3 — pipeline / results.json
-    python main.py --part 4     # Checkpoint 4 — red team / attacks
+    python src/main.py              # Core: 2 → 3 → 4
+    python src/main.py --part 2     # Checkpoint 2 — guardrails
+    python src/main.py --part 3     # Checkpoint 3 — pipeline / results.json
+    python src/main.py --part 4     # Checkpoint 4 — red team / attacks
 
 Optional (không chấm):
 
-    python main.py --part 5     # Security testing pipeline
-    python main.py --part 6     # HITL demos
+    python src/main.py --part 5     # Security testing pipeline
+    python src/main.py --part 6     # HITL demos
+
+File JSON luôn ghi vào ``<repo>/outputs/`` (không phụ thuộc thư mục hiện tại).
 """
-import sys
-import asyncio
+from __future__ import annotations
+
 import argparse
+import asyncio
+import sys
+from pathlib import Path
+
+# Cho phép chạy ``python src/main.py`` từ gốc repo
+_SRC_DIR = Path(__file__).resolve().parent
+if str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
 
 from core.config import setup_api_key
 
@@ -70,9 +80,8 @@ async def part3_assignment_suite():
     except NotImplementedError as e:
         print(
             "Chưa xong Checkpoint 3 (src/assignment/pipeline.py). "
-            "Hoàn thành rồi chạy lại:\n"
-            "  cd src\n"
-            "  python main.py --part 3"
+            "Hoàn thành rồi chạy lại từ gốc repo:\n"
+            "  python src/main.py --part 3"
         )
         print(f"Detail: {e}")
         return None

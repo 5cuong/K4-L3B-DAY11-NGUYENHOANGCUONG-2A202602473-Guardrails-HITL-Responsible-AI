@@ -50,9 +50,14 @@ async def run_assignment_suite(pipeline, student_id: str) -> dict:
     """Run Tests 1–4 from CHECKPOINTS.md (Checkpoint 3) and
     return a dict matching schemas/results.schema.json.
 
-    Write:
-      outputs/results.json
-      outputs/audit_log.json
-      outputs/metrics.json
+    Write under **repo-root** ``outputs/`` (not ``src/outputs/``), e.g.::
+
+        root = Path(__file__).resolve().parents[2]
+        (root / "outputs" / "results.json").write_text(...)
+
+    Files:
+      <repo>/outputs/results.json
+      <repo>/outputs/audit_log.json   (via AuditLogPlugin.export_json)
+      <repo>/outputs/metrics.json     (via MonitoringAlert.export_json)
     """
     raise NotImplementedError("Implement run_assignment_suite")

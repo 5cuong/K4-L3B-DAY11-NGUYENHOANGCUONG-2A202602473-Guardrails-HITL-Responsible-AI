@@ -2,7 +2,8 @@
 
 > ⏱️ **Tổng:** Setup 30' + Lab ~130' (phòng thủ ~90' · tấn công ~30' · nộp ~10').  
 > 👤 **Cá nhân** · Làm **đúng thứ tự** Checkpoint 1 → 5.  
-> 📂 **Không tự tạo file JSON trong** `outputs/` **bằng tay.** Folder và file kết quả được **sinh khi bạn chạy lệnh**.
+> 📂 **Không tự tạo file JSON trong** `outputs/` **bằng tay.** Folder và file kết quả được **sinh khi bạn chạy lệnh**.  
+> ▶️ Mọi lệnh lab chạy từ **gốc repo** (nơi có `README.md`): `python src/main.py --part N` — **không** cần `cd src`.
 
 ### Ba agent (nhớ bảng này)
 
@@ -34,12 +35,12 @@ Khi chạy lệnh, code sẽ **tự tạo folder** (nếu cần) và ghi file JS
 
 ```text
 outputs/
-│  # --- Sinh ở Checkpoint 3 (python main.py --part 3) ---
+│  # --- Sinh ở Checkpoint 3 (python src/main.py --part 3) ---
 ├── results.json              ← BẮT BUỘC nộp (kết quả phòng thủ)
 ├── audit_log.json            ← khuyến nghị (nhật ký)
 ├── metrics.json              ← khuyến nghị (metrics + alert)
 │
-│  # --- Sinh ở Checkpoint 4 (python main.py --part 4) ---
+│  # --- Sinh ở Checkpoint 4 (python src/main.py --part 4) ---
 ├── attack_results.json       ← BẮT BUỘC nộp (tổng hợp tấn công)
 ├── unsafe_attack_result.json ← chi tiết tấn công **Red Agent (default)**
 ├── guards_attack_result.json ← chi tiết tấn công **Red Agent (advance)**
@@ -52,10 +53,10 @@ outputs/
 
 | File                                | Ai tạo?                                        | Khi nào?                      | Bắt buộc nộp?   |
 | ----------------------------------- | ---------------------------------------------- | ----------------------------- | --------------- |
-| `outputs/results.json`              | Code bạn viết ở CP3 (`run_assignment_suite`)   | Sau `python main.py --part 3` | **Có**          |
+| `outputs/results.json`              | Code bạn viết ở CP3 (`run_assignment_suite`)   | Sau `python src/main.py --part 3` | **Có**          |
 | `outputs/audit_log.json`            | Code bạn viết ở CP3 (`audit_log.export_json`)  | Cùng lúc `--part 3`           | Khuyến nghị     |
 | `outputs/metrics.json`              | Code bạn viết ở CP3 (`monitoring.export_json`) | Cùng lúc `--part 3`           | Khuyến nghị     |
-| `outputs/attack_results.json`       | Starter (`save_attack_results`)                | Sau `python main.py --part 4` | **Có**          |
+| `outputs/attack_results.json`       | Starter (`save_attack_results`)                | Sau `python src/main.py --part 4` | **Có**          |
 | `outputs/unsafe_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 4`           | Có (bằng chứng) |
 | `outputs/guards_attack_result.json` | Starter (`run_attacks`)                        | Cùng lúc `--part 4`           | Có (bằng chứng) |
 | `outputs/grade_report.json`         | `scripts/grade.py` (**tự sinh**)               | Checkpoint 5                  | Không bắt buộc  |
@@ -155,8 +156,8 @@ pip install -r requirements.txt
 
 ### Cách tự kiểm tra
 
-```powershell
-# Blue Agent SDK
+```bash
+# Blue Agent SDK (Windows / macOS / Linux — sau khi đã Activate venv)
 python -c "import openai; print('OpenAI SDK (OpenRouter Blue + OpenAI Red) sẵn sàng')"
 # Nếu Red Agent = gemini, kiểm tra thêm:
 # python -c "import google.adk; print('Gemini/ADK sẵn sàng')"
@@ -184,32 +185,34 @@ Mở các file dưới đây, đọc hướng dẫn trong file, rồi **điền 
 #### Việc 1 — Phát hiện jailbreak / prompt injection
 
 - **File:** `src/guardrails/input_guardrails.py`
-- **Hàm:** `detect_injection(user_input) -> bool`
+- **Hàm:** `detect_injection(user_input) -> "ALLOW" | "BLOCK"`
 - **Làm gì:**
   - Thêm ≥5 regex (ignore instructions, you are now, system prompt, reveal prompt, pretend/act as unrestricted, …).
   - Xử lý Unicode ẩn (ví dụ `Ignore\u200b all previous…`) → vẫn bắt được.
   - Câu banking bình thường / “tóm tắt email chuyển khoản delay” → **không** chặn nhầm.
-- **Trả về:** `True` = phát hiện tấn công (sẽ chặn); `False` = cho qua.
+- **Trả về (status rõ ràng — không dùng True/False):**
+  - `"BLOCK"` = phát hiện tấn công → **chặn**
+  - `"ALLOW"` = an toàn → **cho qua**
 
 
 
 #### Việc 2 — Chỉ cho hỏi chuyện ngân hàng
 
 - **Cùng file:** `input_guardrails.py`
-- **Hàm:** `topic_filter(user_input) -> bool`
+- **Hàm:** `topic_filter(user_input) -> "ALLOW" | "BLOCK"`
 - **Làm gì:**
   - Dùng `ALLOWED_TOPICS` / `BLOCKED_TOPICS` trong `src/core/config.py`.
-  - Có topic bị cấm → chặn (`True`).
-  - Không dính topic banking nào → chặn (`True`).
-  - Câu banking hợp lệ → cho qua (`False`).
-- **Lưu ý:** `True` nghĩa là **BLOCK** (dễ nhầm).
+  - Có topic bị cấm → `"BLOCK"`.
+  - Không dính topic banking nào → `"BLOCK"`.
+  - Câu banking hợp lệ → `"ALLOW"`.
+- **Trả về:** `"BLOCK"` = chặn · `"ALLOW"` = cho qua (đừng map True/False — dễ đảo nghĩa).
 
 
 
 #### Việc 3 — Gắn filter vào plugin Input (trước LLM)
 
 - **Cùng file:** class `InputGuardrailPlugin`
-- **Làm gì:** Trong callback, lấy text user → gọi `detect_injection` + `topic_filter` → nếu xấu thì trả message chặn (không gọi LLM); nếu ổn thì `return None` (cho qua).
+- **Làm gì:** Trong callback, lấy text user → gọi `detect_injection` + `topic_filter` → nếu status `"BLOCK"` thì trả message chặn (không gọi LLM); nếu cả hai `"ALLOW"` thì `return None` (cho qua).
 
 
 
@@ -260,13 +263,12 @@ User message
 
 ### Cách chạy kiểm tra
 
-```powershell
-cd src
-python main.py --part 2
+```bash
+# Chạy từ gốc repo (nơi có README.md) — Windows / macOS / Linux
+python src/main.py --part 2
 ```
 
-> **Pass Signal:** Terminal cho thấy injection/topic bị bắt; secret bị `[REDACTED]`; câu banking vẫn trả lời được.  
-> Sau đó `cd ..` về gốc repo nếu cần.
+> **Pass Signal:** Terminal cho thấy injection/topic bị bắt; secret bị `[REDACTED]`; câu banking vẫn trả lời được.
 
 ---
 
@@ -406,16 +408,23 @@ outputs/
 
 ### Cách chạy để SINH output
 
+**Windows (PowerShell):**
+
 ```powershell
-# Đang ở gốc repo
+# Chạy từ gốc repo
 Remove-Item .\outputs\results.json, .\outputs\audit_log.json, .\outputs\metrics.json -ErrorAction SilentlyContinue
-
-cd src
-python main.py --part 3
-cd ..
-
-# Kiểm tra file đã xuất hiện
+python src/main.py --part 3
 Get-ChildItem .\outputs\*.json
+pytest tests/public/test_results_contract.py -q
+```
+
+**macOS / Linux (bash):**
+
+```bash
+# Chạy từ gốc repo
+rm -f outputs/results.json outputs/audit_log.json outputs/metrics.json
+python src/main.py --part 3
+ls outputs/*.json
 pytest tests/public/test_results_contract.py -q
 ```
 
@@ -516,11 +525,21 @@ outputs/
 
 ### Cách chạy để SINH output
 
+```bash
+# Chạy từ gốc repo — Windows / macOS / Linux
+python src/main.py --part 4
+```
+
+Kiểm tra file (chọn đúng OS):
+
 ```powershell
-cd src
-python main.py --part 4
-cd ..
+# Windows
 Get-ChildItem .\outputs\*attack*.json
+```
+
+```bash
+# macOS / Linux
+ls outputs/*attack*.json
 ```
 
 > Cần `OPENROUTER_API_KEY` (Blue Agent) + key Red Agent (`OPENAI_API_KEY` hoặc `GOOGLE_API_KEY`) — lệnh tấn công gọi LLM.  
@@ -549,7 +568,13 @@ Xác nhận `outputs/` đủ file, tự validate, push + nộp link.
 #### Việc 1 — Xác nhận `outputs/` đủ file bắt buộc
 
 ```powershell
+# Windows
 Get-ChildItem .\outputs\
+```
+
+```bash
+# macOS / Linux
+ls outputs/
 ```
 
 **Bắt buộc có:**
@@ -615,13 +640,13 @@ Push lên fork GitHub → nộp **link repo** theo `[SUBMISSION.md](SUBMISSION.m
 | Checkpoint   | Lệnh (sau khi code xong)                  | File được sinh / cập nhật                                                               |
 | ------------ | ----------------------------------------- | --------------------------------------------------------------------------------------- |
 | 1 Setup      | (không)                                   | `.venv/`, `.env`                                                                        |
-| 2 Guardrails | `cd src` → `python main.py --part 2`      | Chỉ in terminal                                                                         |
-| 3 Blue Agent | `cd src` → `python main.py --part 3`      | `outputs/results.json`, `audit_log.json`, `metrics.json`                                |
-| 4 Red Agent  | `cd src` → `python main.py --part 4`      | `outputs/attack_results.json`, `unsafe_attack_result.json`, `guards_attack_result.json` |
+| 2 Guardrails | `python src/main.py --part 2`      | Chỉ in terminal                                                                         |
+| 3 Blue Agent | `python src/main.py --part 3`      | `outputs/results.json`, `audit_log.json`, `metrics.json`                                |
+| 4 Red Agent  | `python src/main.py --part 4`      | `outputs/attack_results.json`, `unsafe_attack_result.json`, `guards_attack_result.json` |
 | 5 Nộp        | `scripts/grade.py` + push link            | tự sinh `grade_report.json` + `lab_report.md`                                           |
 
 
-> Luôn nhớ: lệnh `main.py` chạy từ thư mục `src/`, nhưng file JSON ghi vào `../outputs/` (= `outputs/` ở gốc repo).
+> Chạy lệnh từ **gốc repo**: `python src/main.py --part N`. File JSON luôn ghi vào `outputs/` ở gốc repo (không tạo `src/outputs/`).
 
 ---
 
