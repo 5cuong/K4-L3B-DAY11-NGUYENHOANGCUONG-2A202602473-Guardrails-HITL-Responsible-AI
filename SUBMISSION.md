@@ -1,10 +1,10 @@
 # Hướng dẫn nộp bài & checklist (SUBMISSION)
 
 > ⚠️ **Bài CÁ NHÂN:** mỗi MSSV nộp **một** repo / một link lên LMS.  
-> Điểm theo rubric trong `[README.md](README.md)`. Cách làm: `[CHECKPOINTS.md](CHECKPOINTS.md)` (Checkpoint 1 → 5).  
-> Artifact chấm = file trong `**outputs/**` — **không** cần `report/*.md`.  
-> LLM: mặc định `gemini-3.5-flash` / `gpt-4o-mini`.  
-> Bonus: attack được model khó (`gemini-3.8-flash` / `gpt-5.6-luna`) và/hoặc leak Guards — xem rubric `[README.md](README.md)`.
+> Điểm: [`RUBRIC.md`](RUBRIC.md) · Quy định: [`RULES.md`](RULES.md) · Cách làm: [`CHECKPOINTS.md`](CHECKPOINTS.md) (Checkpoint 1 → 5).  
+> Artifact chấm = file trong `outputs/` — **không** yêu cầu `report/*.md`.  
+> LLM mặc định: `gemini-3.5-flash` / `gpt-4o-mini`.  
+> Bonus lab (≤ **+10**): model khó và/hoặc leak Guards — xem [`RUBRIC.md`](RUBRIC.md).
 
 ---
 
@@ -13,12 +13,12 @@
 Theo **Quy ước chung Khóa 4** — đặt tên repo bài nộp của học viên:
 
 - **Cấu trúc:**  
-`K4-L3-DAYxx-HoVaTen-MSSV-TenBai`  
-*(Không dấu, không khoảng trắng, ngăn cách bằng `-`.)*
+  `K4-L3-DAYxx-HoVaTen-MSSV-TenBai`  
+  *(Không dấu, không khoảng trắng, ngăn cách bằng `-`. Ngày học hai chữ số: `DAY11`.)*
 - **Day 11 (L3) — mẫu cụ thể:**  
-`K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI`
-- **Ví dụ:**  
-`K4-L3-DAY11-NguyenVanA-2A2026xxxxx-Guardrails-HITL-Responsible-AI`
+  `K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI`
+- **Ví dụ (thống nhất format MSSV):**  
+  `K4-L3-DAY11-NguyenVanA-2A2026xxxxx-Guardrails-HITL-Responsible-AI`
 
 **Cách làm gợi ý**
 
@@ -27,15 +27,15 @@ Theo **Quy ước chung Khóa 4** — đặt tên repo bài nộp của học vi
 3. Nộp **link repo** (đã đổi tên) lên cổng LMS / CodeLabs đúng hạn.
 
 Ví dụ link nộp:  
-`https://github.com/<user-cua-ban>/K4-L3-DAY11-NguyenVanA-SE12345-Guardrails-HITL-Responsible-AI`
+`https://github.com/<user-cua-ban>/K4-L3-DAY11-NguyenVanA-2A2026xxxxx-Guardrails-HITL-Responsible-AI`
 
 ---
 
 ## 2. Deadline
 
-- **Hạn chốt:** **23h59 cùng ngày làm Lab** (giờ Việt Nam — ICT / GMT+7).
-- Gia hạn chỉ khi Key Coach thông báo chính thức.
-- Commit sửa bài sau hạn (hoặc hết gia hạn) không được tính.
+- **Hạn chốt mặc định:** **23h59 cùng ngày làm Lab** (giờ Việt Nam — ICT / GMT+7).
+- Gia hạn chỉ khi Key Coach thông báo **trong vòng 48 giờ sau Lab**.
+- Sau hạn (hoặc hết gia hạn): nộp muộn bị trừ điểm; commit sửa sau hạn có thể không được tính.
 
 ---
 
@@ -43,9 +43,11 @@ Ví dụ link nộp:
 
 ```text
 K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
-├── README.md                 <- Họ tên, MSSV, cách chạy ngắn
+├── README.md                 <- Họ tên, MSSV, cách chạy ngắn (có thể giữ README starter + bổ sung)
 ├── CHECKPOINTS.md
 ├── SUBMISSION.md
+├── RUBRIC.md
+├── RULES.md
 ├── requirements.txt
 ├── .env.example              <- KHÔNG commit .env thật
 ├── schemas/results.schema.json
@@ -54,13 +56,13 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 │   ├── assignment/           <- Checkpoint 3
 │   ├── attacks/              <- Checkpoint 4
 │   ├── agents/               <- unsafe + guards (không sửa secret)
-│   ├── hitl/ · testing/      <- optional, không chấm
+│   ├── hitl/ · testing/      <- tham khảo, không chấm
 │   └── main.py
 ├── outputs/                  <- SINH KHI CHẠY — không tạo sẵn placeholder
 │   ├── results.json          <- BẮT BUỘC (phòng thủ) · khớp schema
 │   ├── attack_results.json   <- BẮT BUỘC (tấn công)
-│   ├── audit_log.json        <- khuyến nghị
-│   ├── metrics.json          <- khuyến nghị
+│   ├── audit_log.json        <- nên có
+│   ├── metrics.json          <- nên có
 │   ├── unsafe_attack_result.json
 │   └── guards_attack_result.json
 └── tests/                    <- giữ smoke/public để tự kiểm
@@ -68,17 +70,15 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 ### Artifact bắt buộc
 
+| Loại | File |
+|------|------|
+| Phòng thủ (Blue Team) | `outputs/results.json` |
+| Tấn công (Red Team) | `outputs/attack_results.json` |
 
-| Loại          | File                          |
-| ------------- | ----------------------------- |
-| Phòng thủ (A) | `outputs/results.json`        |
-| Tấn công (B)  | `outputs/attack_results.json` |
+**Bonus lab (grader replay — không tự cấp từ JSON; tổng ≤ +10):**
 
-
-**Bonus (grader replay — không tự cấp từ JSON):**
-
-- **+5** nếu leak **unsafe** trên model khó (`gemini-3.8-flash` / `gpt-5.6-luna`)
-- **+2 / leak** trên **guards** (tối đa **+10**)
+- **B1 +5** nếu leak **unsafe** trên model khó (`gemini-3.8-flash` / `gpt-5.6-luna`)
+- **B2 +2 / leak** trên **guards** (tối đa **+5**)
 
 ---
 
@@ -88,7 +88,7 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 ```json
 {
-  "student_id": "SE12345",
+  "student_id": "2A2026xxxxx",
   "framework": "google-adk",
   "safe_queries": [
     {"input": "...", "blocked": false, "layer": null, "response_preview": "..."}
@@ -116,7 +116,7 @@ K4-L3-DAY11-<HoVaTen>-<MSSV>-Guardrails-HITL-Responsible-AI/
 
 ```json
 {
-  "student_id": "SE12345",
+  "student_id": "2A2026xxxxx",
   "unsafe_attacks": [
     {"id": 1, "category": "Completion", "input": "...", "response_preview": "...", "leaked": true, "target": "unsafe"}
   ],
@@ -146,4 +146,3 @@ python scripts/grade.py --submission-dir . --out outputs/grade_report.json
 - [ ] Nộp **link repo** đúng hạn lên LMS / CodeLabs
 
 > Máy không chạy được (thiếu lib, sai path, lỗi cú pháp) → phần chấm máy = lỗi kỹ thuật — sửa đóng gói trước khi nộp.
-

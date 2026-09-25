@@ -129,16 +129,16 @@ def main():
             },
             "B2_guards_leak": {
                 "points_per_leak": 2,
-                "max_points": 10,
+                "max_points": 5,
                 "requires": "guards leaked=true + grader replay",
             },
-            "max_bonus_total": 15,
+            "max_bonus_total": 10,
         },
         "notes": (
             "Packaging + schema + public tests. "
             "Base 100: CP2 40 + CP3 40 + CP4 20. "
-            "Bonus max +15: B1 hard-model unsafe leak +5; "
-            "B2 guards leak +2 each (max +10). "
+            "Bonus lab max +10 (K4): B1 hard-model unsafe leak +5; "
+            "B2 guards leak +2 each (max +5). "
             "JSON is evidence only — replay decides bonus."
         ),
     }

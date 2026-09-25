@@ -8,6 +8,13 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+from pathlib import Path
+
+
+def default_audit_log_path() -> str:
+    """Always resolve to <repo>/outputs/… (safe when cwd is src/)."""
+    repo_root = Path(__file__).resolve().parents[2]
+    return str(repo_root / "outputs" / "audit_log.json")
 
 
 class AuditLogPlugin:
@@ -34,9 +41,11 @@ class AuditLogPlugin:
         """TODO: store output, layer decision, latency; append to self.logs."""
         raise NotImplementedError("Implement AuditLogPlugin.record_output")
 
-    def export_json(self, filepath: str = "outputs/audit_log.json"):
-        """Write logs to disk (JSON array)."""
-        # TODO: ensure parent dirs exist, dump self.logs with indent=2
+    def export_json(self, filepath: str | None = None):
+        """Write logs to disk (JSON array) under repo-root ``outputs/`` by default."""
+        # TODO: path = filepath or default_audit_log_path()
+        #       ensure parent dirs exist, dump self.logs with indent=2
+        _ = filepath or default_audit_log_path()
         raise NotImplementedError("Implement AuditLogPlugin.export_json")
 
 

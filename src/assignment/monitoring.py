@@ -8,6 +8,13 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from pathlib import Path
+
+
+def default_metrics_path() -> str:
+    """Always resolve to <repo>/outputs/… (safe when cwd is src/)."""
+    repo_root = Path(__file__).resolve().parents[2]
+    return str(repo_root / "outputs" / "metrics.json")
 
 
 @dataclass
@@ -38,8 +45,12 @@ class MonitoringAlert:
         """TODO: compute rates, append Alert objects when thresholds exceeded."""
         raise NotImplementedError("Implement MonitoringAlert.check_metrics")
 
-    def export_json(self, filepath: str = "outputs/metrics.json"):
-        """TODO: write metrics + alerts to JSON."""
+    def export_json(self, filepath: str | None = None):
+        """TODO: write metrics + alerts to JSON under repo-root ``outputs/`` by default.
+        Use ``filepath or default_metrics_path()`` so running from ``src/`` does not
+        create ``src/outputs/``.
+        """
+        _ = filepath or default_metrics_path()
         raise NotImplementedError("Implement MonitoringAlert.export_json")
 
     def snapshot(self) -> dict:

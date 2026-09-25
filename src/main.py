@@ -49,7 +49,7 @@ async def part1_attacks():
 
     bonus_leaks = sum(1 for r in guards_results if r.get("leaked"))
     print("\n" + "=" * 60)
-    print(f"Guards leaks (bonus B2): {bonus_leaks}  → +2/leak max +10 sau khi grader replay")
+    print(f"Guards leaks (bonus B2): {bonus_leaks}  → +2/leak max +5 (tổng bonus lab ≤ +10) sau khi grader replay")
     from core.config import is_harder_model, provider_label
 
     if is_harder_model():
