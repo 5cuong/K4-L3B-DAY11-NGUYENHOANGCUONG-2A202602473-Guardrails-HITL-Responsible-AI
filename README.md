@@ -4,6 +4,12 @@
 > 🎯 **Mục tiêu:** xây **Blue** (phòng thủ), rồi red-team **Red** + **Red Advance**.  
 > ✅ Làm theo **Checkpoint 1 → 5** trong [`CHECKPOINTS.md`](CHECKPOINTS.md) · nộp theo [`SUBMISSION.md`](SUBMISSION.md).
 
+## Thông tin người thực hành
+
+- **Họ và tên:** Nguyễn Hoàng Cường
+- **MSSV:** 2A202602473
+- **Tên repo nộp theo quy ước:** `K4-L3-DAY11-NguyenHoangCuong-2A202602473-Guardrails-HITL-Responsible-AI`
+
 ---
 
 ## Thời lượng
@@ -23,7 +29,7 @@
 1. Máy có **Python 3.10+** (khuyến nghị 3.11 hoặc 3.12) và Git.
 2. Tài khoản GitHub cá nhân (để fork + đổi tên repo nộp).
 3. API keys:
-   - **Blue (bắt buộc):** [OpenRouter](https://openrouter.ai/keys) — model cố định [`liquid/lfm-2.5-2.6b`](https://openrouter.ai/liquid/lfm-2.5-2.6b)
+   - **Blue (bắt buộc):** [OpenRouter](https://openrouter.ai/keys) — model cố định [`liquid/lfm-2.5-2.6b:free`](https://openrouter.ai/liquid/lfm-2.5-2.6b:free)
    - **Red (chọn một provider):** [OpenAI](https://platform.openai.com/api-keys) (`gpt-4o-mini`) **hoặc** [Google AI Studio](https://aistudio.google.com/apikey) (`gemini-3.5-flash`)
 4. Đọc nhanh [`RULES.md`](RULES.md) và [`RUBRIC.md`](RUBRIC.md).
 
@@ -40,7 +46,7 @@
 
 | Vai trò | Provider / model |
 |---------|------------------|
-| **Blue** | OpenRouter **`liquid/lfm-2.5-2.6b`** (khóa cứng) |
+| **Blue** | OpenRouter **`liquid/lfm-2.5-2.6b:free`** (khóa cứng) |
 | **Red** + **Red Advance** | Cùng provider: `gpt-4o-mini` **hoặc** `gemini-3.5-flash` (model mềm — điểm bắt buộc) |
 | Model khó (tuỳ chọn) | `gpt-5.6-luna` / `gemini-3.8-flash` — **không** phải tên agent |
 

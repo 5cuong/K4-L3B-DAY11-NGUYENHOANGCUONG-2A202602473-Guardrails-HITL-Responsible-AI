@@ -15,6 +15,24 @@ from google.adk.plugins import base_plugin
 from core.utils import chat_with_agent
 
 
+_PII_PATTERNS = {
+    "vietnamese_phone": re.compile(
+        r"(?<!\d)(?:\+?84|0)(?:[\s.-]?\d){8,9}(?!\d)", re.IGNORECASE
+    ),
+    "email": re.compile(r"\b[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}\b", re.IGNORECASE),
+    "national_id": re.compile(r"(?<!\d)(?:\d{9}|\d{12})(?!\d)"),
+    "api_key": re.compile(r"\bsk-[A-Za-z0-9_-]{8,}\b", re.IGNORECASE),
+    "password": re.compile(
+        r"\b(?:admin\s+)?password\s*(?:is\s+|[:=]\s*)[\"']?[^\s,;\"']+",
+        re.IGNORECASE,
+    ),
+    "demo_admin_password": re.compile(r"\badmin123\b", re.IGNORECASE),
+    "internal_db_host": re.compile(
+        r"\bdb\.vinbank\.internal(?::\d+)?\b", re.IGNORECASE
+    ),
+}
+
+
 # ============================================================
 # Implement content_filter()
 #
@@ -36,24 +54,14 @@ def content_filter(response: str) -> dict:
     Returns:
         dict with 'safe', 'issues', and 'redacted' keys
     """
+    response = response or ""
     issues = []
     redacted = response
-
-    # PII patterns to check
-    PII_PATTERNS = {
-        # TODO: Add regex patterns for:
-        # - VN phone number: r"0\d{9,10}"
-        # - Email: r"[\w.-]+@[\w.-]+\.[a-zA-Z]{2,}"
-        # - National ID (CMND/CCCD): r"\b\d{9}\b|\b\d{12}\b"
-        # - API key pattern: r"sk-[a-zA-Z0-9-]+"
-        # - Password pattern: r"password\s*[:=]\s*\S+"
-    }
-
-    for name, pattern in PII_PATTERNS.items():
-        matches = re.findall(pattern, response, re.IGNORECASE)
+    for name, pattern in _PII_PATTERNS.items():
+        matches = list(pattern.finditer(response))
         if matches:
             issues.append(f"{name}: {len(matches)} found")
-            redacted = re.sub(pattern, "[REDACTED]", redacted, flags=re.IGNORECASE)
+            redacted = pattern.sub("[REDACTED]", redacted)
 
     return {
         "safe": len(issues) == 0,
@@ -159,6 +167,14 @@ class OutputGuardrailPlugin(base_plugin.BasePlugin):
                     text += part.text
         return text
 
+    def _replace_text(self, llm_response, text: str) -> None:
+        current_content = getattr(llm_response, "content", None)
+        role = getattr(current_content, "role", None) or "model"
+        llm_response.content = types.Content(
+            role=role,
+            parts=[types.Part.from_text(text=text)],
+        )
+
     async def after_model_callback(
         self,
         *,
@@ -172,16 +188,22 @@ class OutputGuardrailPlugin(base_plugin.BasePlugin):
         if not response_text:
             return llm_response
 
-        # TODO: Implement logic:
-        # 1. Call content_filter(response_text)
-        #    - If issues found: replace llm_response.content with redacted version
-        #    - Increment self.redacted_count
-        # 2. If use_llm_judge: call llm_safety_check(response_text)
-        #    - If unsafe: replace llm_response.content with a safe message
-        #    - Increment self.blocked_count
-        # 3. Return llm_response (possibly modified)
+        filtered = content_filter(response_text)
+        safe_text = filtered["redacted"]
+        if not filtered["safe"]:
+            self.redacted_count += 1
+            self._replace_text(llm_response, safe_text)
 
-        return llm_response  # TODO: modify if needed
+        if self.use_llm_judge:
+            verdict = await llm_safety_check(safe_text)
+            if not verdict.get("safe", False):
+                self.blocked_count += 1
+                self._replace_text(
+                    llm_response,
+                    "I can't provide that response safely. "
+                    "I can help with a VinBank banking question instead.",
+                )
+        return llm_response
 
 
 # ============================================================
